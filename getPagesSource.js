@@ -84,6 +84,8 @@ function parseHTML(html)
 
     //if I detect I'm in an ad, I must wait until I've popped all tags off the stack before I can print again
     var insideAd = false;
+    //this is used for determining if I'm still within the tag of an ad
+    var adLayer = 0;
 
     var poppedTag = "";
     var tagStack = [];
@@ -112,6 +114,11 @@ function parseHTML(html)
                 {
 
                     poppedTag = tagStack.pop();
+                    if(tagStack.length == adLayer)
+                    {
+                        //if I was in an ad container, I no longer am
+                        insideAd = false;
+                    }
                     if(tagStack.length == 0)
                     {
                         //We have completed reading through a tag layer
@@ -119,19 +126,16 @@ function parseHTML(html)
                         output += outputBuffer;
                         outputBuffer = "";
                         printingOut = false;
-
-                        //if I was in an ad container, I no longer am
-                        insideAd = false;
                     }
                     outputBuffer += ("</" + poppedTag + ">");
 
-                    console.log(outputRaw);
                     if(isAd(outputRaw))
                     {
                         //add everything previously in buffer exept for the ad and what follows it in the tag hierarchy
-                        output += outputBuffer.substring(0, outputBuffer.length - outputRaw.length);
+                        //this makes sure I keep the ending tag to the ad but not the actual text. This ensures that the tag we first made has an end
+                        output += (outputBuffer.substring(0, outputBuffer.length - outputRaw.length - poppedTag.length - 3) + (outputBuffer.substring(outputBuffer.length -poppedTag.length - 3)));
                         outputBuffer = "";
-                        
+                        adLayer = tagStack.length;
                         //everything else in this stack is an ad probably
                         if(tagStack.length > 0)
                         {
