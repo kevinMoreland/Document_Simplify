@@ -11,7 +11,7 @@ function DOMtoString(document_root) {
 }
 function isAcceptedTag(tag)
 {
-    var acceptedTags = ["a", "strong", "i", "span", "div","p", "h1", "h2", "h3", "h4", "h5", "h6"];
+    var acceptedTags = ["a", "cite","strong", "i", "span", "div","p", "h1", "h2", "h3", "h4", "h5", "h6"];
     if(acceptedTags.includes(tag))
     {
         return true;
@@ -50,14 +50,41 @@ function getTag(html, i)
     output[1] = i;
     return output;
 }
-
+function isAd(text)
+{
+    //TODO: work on code that detects key words to see if something is an ad
+    var possibleAds = ["paid content", "advertisement", "sponsored by", "content by"];
+    
+    //usually, it seems like the above will be included in a set of 4 or less words above an ad
+    if(text.split().length <= 4)
+    {
+        for(var i = 0; i < text.length; i++)
+        {
+            if(text.toLowerCase().includes(possibleAds[i]))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 function parseHTML(html)
 {
+    //TODO alot of junk is printed when there is a video on the page
+
+    //I add to a buffer, and if the text turns out to be an ad, I clear it.
+    //if not, i add the buffer to the actual output
     var output = "";
     var outputBuffer = "";
+    //used for checking if text is an ad
+    var outputRaw = "";
+
     var printingOut = false;
     var endTag = false;
-    var curTag = "";
+
+    //if I detect I'm in an ad, I must wait until I've popped all tags off the stack before I can print again
+    var insideAd = false;
+
     var poppedTag = "";
     var tagStack = [];
 
@@ -70,30 +97,51 @@ function parseHTML(html)
             var tagInfo = getTag(html, i);
             i = tagInfo[1];
             endTag = tagInfo[2];
-            //push/ pop from stack even if not accepted tag
 
-
+            //push/ pop from stack if accepted tag
             if(isAcceptedTag(tagInfo[0]))
             {
+                
                 if(!endTag)
                 {
                     tagStack.push(tagInfo[0]);
                     outputBuffer += ("<" + tagInfo[0] + ">");
+                    
                 }
                 else
                 {
+
                     poppedTag = tagStack.pop();
                     if(tagStack.length == 0)
                     {
                         //We have completed reading through a tag layer
                         //add to output even if empty, clear buffer
                         output += outputBuffer;
-
                         outputBuffer = "";
                         printingOut = false;
+
+                        //if I was in an ad container, I no longer am
+                        insideAd = false;
                     }
                     outputBuffer += ("</" + poppedTag + ">");
+
+                    console.log(outputRaw);
+                    if(isAd(outputRaw))
+                    {
+                        //add everything previously in buffer exept for the ad and what follows it in the tag hierarchy
+                        output += outputBuffer.substring(0, outputBuffer.length - outputRaw.length);
+                        outputBuffer = "";
+                        
+                        //everything else in this stack is an ad probably
+                        if(tagStack.length > 0)
+                        {
+                            insideAd = true;
+                        }   
+                    }
+
                 }
+                //outputRaw just needs to see whats in this current tag
+                outputRaw = "";
                 printingOut = true;
             }
             else
@@ -102,10 +150,11 @@ function parseHTML(html)
                 printingOut = false;
             }
         }
-        else if(printingOut)
+        else if(printingOut && !insideAd)
         {
             //if not in tag and this is printable text, print
             outputBuffer += html[i];
+            outputRaw += html[i];
         }
 
     }
