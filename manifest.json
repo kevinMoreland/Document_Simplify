@@ -2,7 +2,7 @@
   "name": "Document_Simplify",
   "version": "1.0",
   "description": "Simplify a documents text to its raw readable components",
-  "permissions": ["tabs", "activeTab", "declarativeContent", "storage", "http://*/", "https://*/"],
+  "permissions": ["tabs", "activeTab", "declarativeContent", "storage", "<all_urls"],
   "background": {
   	"scripts": ["background.js"],
 	 "persistent": false

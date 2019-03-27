@@ -11,11 +11,12 @@ function DOMtoString(document_root) {
 }
 function isAcceptedTag(tag)
 {
-    var acceptedTags = ["a", "cite","strong", "i", "span", "div","p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "ul"];
+    var acceptedTags = ["a", "cite","strong", "i", "span", "body","div","p", "h1", "h2", "h3", "h4", "h5", "h6", "section", "header"];
     if(acceptedTags.includes(tag))
     {
         return true;
     }
+    console.log(tag);
     return false;
     
 }
