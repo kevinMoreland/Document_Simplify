@@ -129,7 +129,7 @@ function parseHTML(html)
                         printingOut = false;
                     }
                     outputBuffer += ("</" + poppedTag + ">");
-
+                    /*
                     if(isAd(outputRaw))
                     {
                         //add everything previously in buffer exept for the ad and what follows it in the tag hierarchy
@@ -142,7 +142,7 @@ function parseHTML(html)
                         {
                             insideAd = true;
                         }   
-                    }
+                    }*/
 
                 }
                 //outputRaw just needs to see whats in this current tag
