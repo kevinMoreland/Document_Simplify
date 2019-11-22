@@ -1,15 +1,19 @@
+// Copyright 2018 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
-chrome.browserAction.onClicked.addListener(function (tab) {	
-		/* when button is clicked, the reader.html file will open and display the simplified page*/
-				
-		chrome.windows.create({
-		   url: chrome.runtime.getURL("reader.html"),
-		   state: "fullscreen"
-		});
+'use strict';
 
-	
+chrome.runtime.onInstalled.addListener(function() {
+  chrome.storage.sync.set({color: '#3aa757'}, function() {
+    console.log('The color is green.');
+  });
+  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
+    chrome.declarativeContent.onPageChanged.addRules([{
+      conditions: [new chrome.declarativeContent.PageStateMatcher({
+        pageUrl: {hostEquals: 'developer.chrome.com'},
+      })],
+      actions: [new chrome.declarativeContent.ShowPageAction()]
+    }]);
+  });
 });
-
-function doStuffWithDom(domContent) {
-    console.log('I received the following DOM content:\n' + domContent);
-}
