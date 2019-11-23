@@ -17,7 +17,12 @@ changeColor.onclick = function(element) {
             To : emailReciever,
             From : "documentsimplify@gmail.com",
             Subject : "Convert",
-            Body : "And this is the body"
+            Body : "",
+                Attachments : [
+                {
+                    name : "test.pdf",
+                    path : "https://url-to-pdf-api.herokuapp.com/api/render?url=http://google.com"
+                }]
         }).then(
         message => alert(message)
     );
